@@ -1,10 +1,6 @@
-
-
 from __future__ import print_function
-
 import os
 import sys
-
 from matplotlib import pyplot
 import numpy as np
 from keras import Sequential, layers
@@ -17,9 +13,8 @@ from keras.models import Model
 from keras.initializers import Constant
 
 BASE_DIR = ''
-GLOVE_DIR = os.path.join(BASE_DIR, 'glove.6B')
-# TEXT_DATA_DIR = os.path.join(BASE_DIR, '20_newsgroup')
-TEXT_DATA_DIR = os.path.join(BASE_DIR, 'authors1')
+GLOVE_DIR = os.path.join(BASE_DIR, 'WordEmbedding')
+TEXT_DATA_DIR = os.path.join(BASE_DIR, 'Authors')
 MAX_SEQUENCE_LENGTH = 1000
 MAX_NUM_WORDS = 20000
 EMBEDDING_DIM = 100
@@ -50,16 +45,6 @@ for name in sorted(os.listdir(TEXT_DATA_DIR)):
     if os.path.isdir(path):
         label_id = len(labels_index)
         labels_index[name] = label_id
-        # for fname in sorted(os.listdir(path)):
-        #     if fname.isdigit():
-        #         fpath = os.path.join(path, fname)
-        #         args = {} if sys.version_info < (3,) else {'encoding': 'latin-1'}
-        #         with open(fpath, **args) as f:
-        #             t = f.read()
-        #             i = t.find('\n\n')  # skip header
-        #             if 0 < i:
-        #                 t = t[i:]
-        #             texts.append(t)
         for fname in sorted(os.listdir(path)):
             if fname.isdigit():
                 fpath = os.path.join(path, fname)
@@ -71,7 +56,6 @@ for name in sorted(os.listdir(TEXT_DATA_DIR)):
                         t = t[i:]
                     texts.append(t)
                 labels.append(label_id)
-
 print('Found %s texts.' % len(texts))
 
 # finally, vectorize the text samples into a 2D integer tensor
@@ -120,7 +104,35 @@ embedding_layer = Embedding(num_words,
                             embeddings_initializer=Constant(embedding_matrix),
                             input_length=MAX_SEQUENCE_LENGTH,
                             trainable=False)
+###################################################################################
+#                                  FIRST OPTION                                  #
+###################################################################################
+print('Training model.')
 
+# train a 1D convnet with global maxpooling
+model = Sequential()
+model.add(layers.Embedding(num_words,
+                            EMBEDDING_DIM,
+                            embeddings_initializer=Constant(embedding_matrix),
+                            input_length=MAX_SEQUENCE_LENGTH,
+                            trainable=True))
+model.add(layers.GaussianNoise(0.1, input_shape=(MAX_SEQUENCE_LENGTH,), trainable=True))
+model.add(layers.Conv1D(500, 3, activation='sigmoid', use_bias=True))
+model.add(layers.MaxPooling1D(5))
+model.add(layers.Conv1D(500, 4, activation='sigmoid', use_bias=True))
+model.add(layers.MaxPooling1D(5))
+model.add(layers.Conv1D(500, 5, activation='sigmoid', use_bias=True))
+model.add(layers.GlobalMaxPooling1D())
+# x = Dense(128, activation='relu')(x)
+model.add(layers.Dense(len(labels_index), activation='softmax'))
+model.compile(loss='categorical_crossentropy',
+              optimizer='rmsprop',
+              metrics=['acc'])
+model.summary()
+
+###################################################################################
+#                                  SECOND OPTION                                  #
+###################################################################################
 # print('Training model.')
 #
 # # train a 1D convnet with global maxpooling
@@ -165,35 +177,10 @@ embedding_layer = Embedding(num_words,
 # #     print(weight)
 #
 # model.summary()
-
-###############################################
-print('Training model 2.')
-
-# train a 1D convnet with global maxpooling
-model = Sequential()
-model.add(layers.Embedding(num_words,
-                            EMBEDDING_DIM,
-                            embeddings_initializer=Constant(embedding_matrix),
-                            input_length=MAX_SEQUENCE_LENGTH,
-                            trainable=True))
-model.add(layers.GaussianNoise(0.1, input_shape=(MAX_SEQUENCE_LENGTH,), trainable=True))
-model.add(layers.Conv1D(500, 3, activation='sigmoid', use_bias=True))
-model.add(layers.MaxPooling1D(5))
-model.add(layers.Conv1D(500, 4, activation='sigmoid', use_bias=True))
-model.add(layers.MaxPooling1D(5))
-model.add(layers.Conv1D(500, 5, activation='sigmoid', use_bias=True))
-model.add(layers.GlobalMaxPooling1D())
-# x = Dense(128, activation='relu')(x)
-model.add(layers.Dense(len(labels_index), activation='softmax'))
-model.compile(loss='categorical_crossentropy',
-              optimizer='rmsprop',
-              metrics=['acc'])
-model.summary()
 history = model.fit(x_train, y_train,
           batch_size=128,
           epochs=10,
           validation_data=(x_val, y_val))
-# /////////////////////////////
 
 scores = model.evaluate(x_train, y_train, verbose=0)
 scores2 = model.evaluate(x_val, y_val, verbose=0)
@@ -201,6 +188,7 @@ print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 print("%s: %.2f%%" % (model.metrics_names[1], scores2[1]*100))
 print(model.metrics_names)
 print(history.history)
+
 # plot history
 pyplot.plot(history.history['acc'], label='train')
 pyplot.plot(history.history['val_acc'], label='test')
