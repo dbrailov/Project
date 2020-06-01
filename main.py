@@ -117,7 +117,7 @@ noiseArr = np.empty((0,1), float)
 # load pre-trained word embeddings into an Embedding layer
 # note that we set trainable = False so as to keep the embeddings fixed
 noise = 0
-for x in range(21):
+for x in range(2):
     print(noise)
     # noiseArr = np.append(arr, np.array(noise), axis=0)
     print('Training model.')
@@ -143,7 +143,7 @@ for x in range(21):
     conv2Filter = model.layers[2].get_weights()
     conv4Filter = model.layers[4].get_weights()
     conv6Filter = model.layers[6].get_weights()
-    history = model.fit(x_train, y_train, batch_size=128, epochs=10, validation_data=(x_val, y_val))
+    history = model.fit(x_train, y_train, batch_size=128, epochs=1, validation_data=(x_val, y_val))
 
     ########################################################################################################################
     #                                                     SAVE WEIGHTS                                                     #
@@ -154,7 +154,7 @@ for x in range(21):
     arr2 = np.append(arr2, np.array([conv2Filter[0][0].flatten()]), axis=0)
     arr4 = np.append(arr4, np.array([conv4Filter[0][0].flatten()]), axis=0)
     arr6 = np.append(arr6, np.array([conv6Filter[0][0].flatten()]), axis=0)
-    noise = np.random.normal(0.02, 0.1,1)
+    noise = np.random.normal(0.02, 0.1, 1)
 
     ############################################
 arr2T = arr2.transpose()
@@ -169,21 +169,25 @@ for i, x in enumerate(arr2T):
     abs2 = abs(mean2)
     cov2 = std2/abs2
     covArr2 = np.append(covArr2, cov2)
-    arr2 = np.append(arr2, covArr2)
     #####################
     std4 = stdev(arr4T[i])
     mean4 = mean(arr4T[i])
     abs4 = abs(mean4)
     cov4 = std4/abs4
     covArr4 = np.append(covArr4, cov4)
-    arr4 = np.append(arr4, covArr4)
     #####################
     std6 = stdev(arr6T[i])
     mean6 = mean(arr6T[i])
     abs6 = abs(mean6)
     cov6 = std6/abs6
     covArr6 = np.append(covArr6, cov6)
-    arr6 = np.append(arr6, covArr6)
+    #####################
+# covArr2 = covArr2.transpose()
+# covArr4 = covArr4.transpose()
+# covArr6 = covArr6.transpose()
+arr2 = np.append(arr2, np.array([covArr2]), axis=0)
+arr4 = np.append(arr4, np.array([covArr4]), axis=0)
+arr6 = np.append(arr6, np.array([covArr6]), axis=0)
     #####################
 df2 = pd.DataFrame(covArr2, columns=['2'])
 df2q = df2.quantile(.75)
@@ -198,9 +202,8 @@ plt.plot(covArr2)
 plt.plot(covArr4)
 plt.plot(covArr6)
 plt.title('Covariance')
-plt.savefig('a.jpeg', bbox_inches='tight', pad_inches=0)
 plt.show()
-plt.savefig('1_2_plot.png', dpi=300)
+plt.savefig('1_2_plot.png', dpi=600)
 
 with open('1_2_conv2_quantile.csv','a') as f:
     np.savetxt(f, df2q)
