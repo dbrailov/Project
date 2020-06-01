@@ -117,7 +117,7 @@ noiseArr = np.empty((0,1), float)
 # load pre-trained word embeddings into an Embedding layer
 # note that we set trainable = False so as to keep the embeddings fixed
 noise = 0
-for x in range(2):
+for x in range(21):
     print(noise)
     # noiseArr = np.append(arr, np.array(noise), axis=0)
     print('Training model.')
@@ -143,7 +143,7 @@ for x in range(2):
     conv2Filter = model.layers[2].get_weights()
     conv4Filter = model.layers[4].get_weights()
     conv6Filter = model.layers[6].get_weights()
-    history = model.fit(x_train, y_train, batch_size=128, epochs=1, validation_data=(x_val, y_val))
+    history = model.fit(x_train, y_train, batch_size=128, epochs=10, validation_data=(x_val, y_val))
 
     ########################################################################################################################
     #                                                     SAVE WEIGHTS                                                     #
