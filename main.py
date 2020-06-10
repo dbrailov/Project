@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import shutil
 import sys
+from collections import Counter
 from statistics import stdev, mean
 import pandas as pd
 import tensorflow
@@ -15,8 +16,9 @@ from keras.utils import to_categorical
 from keras.layers import Conv1D, MaxPooling1D, Embedding, Flatten, Dense, Dropout,GaussianNoise, GlobalMaxPooling1D
 from keras.initializers import Constant
 from datetime import datetime
-
 import textEditor
+from array import array
+import seaborn as sns
 from gui import MainWindow
 BASE_DIR = ''
 GLOVE_DIR = os.path.join(BASE_DIR, 'embedding')
@@ -29,7 +31,7 @@ TEXT_DATA_DIR = os.path.join(BASE_DIR, 'authors')
 
 
 def train(author1, author2, gaussian, epochs, filters, split, pool, kernel1, kernel2, kernel3, dropout):
-    # print(author1, author2, gaussian, epochs, filters, split, pool, kernel1, kernel2, kernel3, dropout)
+    print(author1, author2, gaussian, epochs, filters, split, pool, kernel1, kernel2, kernel3, dropout)
     textEditor.toShortText([author1, author2])
     textEditor.toCSV('data/dataSet.txt')
     authorsList = textEditor.createDataSet('data/dataSet.csv')
@@ -122,9 +124,9 @@ def train(author1, author2, gaussian, epochs, filters, split, pool, kernel1, ker
     # print(embedding_matrix[1])
     np.savetxt("word.csv", embedding_matrix[1], delimiter=",")
     ###################################
-    arr2 = np.empty((0, filters*EMBEDDING_DIM), int)
-    arr4 = np.empty((0, filters*filters), int)
-    arr6 = np.empty((0, filters*filters), int)
+    arr2 = np.empty((0, filters*EMBEDDING_DIM), float)
+    arr4 = np.empty((0, filters*filters), float)
+    arr6 = np.empty((0, filters*filters), float)
     noiseArr = np.empty((0,1), float)
 
     ###################################F
@@ -135,7 +137,6 @@ def train(author1, author2, gaussian, epochs, filters, split, pool, kernel1, ker
     # note that we set trainable = False so as to keep the embeddings fixed
     noise = 0.0
     for x in range(3):
-        print(' [======================================]')
         print('GaussianNoise: ' + str(noise))
         # noiseArr = np.append(arr, np.array(noise), axis=0)
         print('Training model.')
@@ -153,9 +154,6 @@ def train(author1, author2, gaussian, epochs, filters, split, pool, kernel1, ker
         model.add(Dropout(rate=dropout))
         model.add(Dense(2, activation='softmax', name='output'))
         model.compile(loss=tensorflow.keras.losses.categorical_crossentropy, optimizer='adam', metrics=['accuracy'])
-        # conv2Filter = model.layers[2].get_weights()
-        # conv4Filter = model.layers[4].get_weights()
-        # conv6Filter = model.layers[6].get_weights()
         history = model.fit(x_train, y_train, batch_size=128, epochs=epochs, validation_data=(x_val, y_val))
         ########################################################################################################################
         #                                                     SAVE WEIGHTS                                                     #
@@ -172,9 +170,9 @@ def train(author1, author2, gaussian, epochs, filters, split, pool, kernel1, ker
     arr2T = arr2.transpose()
     arr4T = arr4.transpose()
     arr6T = arr6.transpose()
-    covArr2 = np.empty((0, filters*EMBEDDING_DIM), int)
-    covArr4 = np.empty((0, filters*filters), int)
-    covArr6 = np.empty((0, filters*filters), int)
+    covArr2 = np.empty((0, filters*EMBEDDING_DIM), float)
+    covArr4 = np.empty((0, filters*filters), float)
+    covArr6 = np.empty((0, filters*filters), float)
 
     for i, x in enumerate(arr2T):
         std2 = stdev(arr2T[i])
@@ -183,11 +181,6 @@ def train(author1, author2, gaussian, epochs, filters, split, pool, kernel1, ker
         cov2 = std2/abs2
         covArr2 = np.append(covArr2, cov2)
     for i, x in enumerate(arr4T):
-        # std2 = stdev(arr2T[i])
-        # mean2 = mean(arr2T[i])
-        # abs2 = abs(mean2)
-        # cov2 = std2/abs2
-        # covArr2 = np.append(covArr2, cov2)
         #####################
         std4 = stdev(arr4T[i])
         mean4 = mean(arr4T[i])
@@ -205,10 +198,6 @@ def train(author1, author2, gaussian, epochs, filters, split, pool, kernel1, ker
     minCovArrSum = np.amin(covArrSum)
     indexMinCovArrSum = np.where(covArrSum == minCovArrSum)[0][0]
     indexMinCovArrSumString = 'The optimal kernel size for ' + authorsList[0] + ' and ' + authorsList[1] + ' is: ' + str(kernelList[indexMinCovArrSum])
-
-    # arr2 = np.append(arr2, np.array([covArr2]), axis=0)
-    # arr4 = np.append(arr4, np.array([covArr4]), axis=0)
-    # arr6 = np.append(arr6, np.array([covArr6]), axis=0)
         #####################
     df2 = pd.DataFrame(covArr2, columns=['2'])
     df2q = df2.quantile(.75)
@@ -223,20 +212,15 @@ def train(author1, author2, gaussian, epochs, filters, split, pool, kernel1, ker
         ########################################################################################################################
     if not os.path.isdir('results/'):
         os.mkdir('results/')
-    # shutil.rmtree('results/last')
     if not os.path.isdir('results/last'):
         os.mkdir('results/last')
-    # last = [x[0] for x in os.walk('results/')]
-    # last = max(last, key=textEditor.extractLast)
-    # last = last.split('/')
-    # last = int(last[1]) + 1
     last = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
     os.mkdir('results/' + last + '_' + authorsList[0] + '-' + authorsList[1])
     plt.plot(covArr2)
     plt.plot(covArr4)
     plt.plot(covArr6)
     plt.legend(['Kernel: '+str(kernel1), 'Kernel: '+str(kernel2), 'Kernel: '+str(kernel3)], loc='upper left')
-    plt.title('Variance Coefficient Plot')
+    plt.title('Coefficient Of Variance Plot')
     ########################################################################################################################
     plt.savefig('results/' + last + '_' + authorsList[0] + '-' + authorsList[1] + '/VarianceCoefficientPlot.png', dpi=600)
     plt.savefig('results/last/VarianceCoefficientPlot.png', dpi=600)
@@ -303,4 +287,15 @@ def train(author1, author2, gaussian, epochs, filters, split, pool, kernel1, ker
     plt.savefig('results/last/LossPlot.png', dpi=600)
     plt.savefig('results/' + last + '_' + authorsList[0] + '-' + authorsList[1] + '/LossPlot.png', dpi=600)
     plt.close()
+    #############################
+    covArr2Q = covArr2[covArr2 < df2q.values]
+    covArr4Q = covArr4[covArr4 < df4q.values]
+    covArr6Q = covArr6[covArr6 < df6q.values]
+    _ = plt.hist([covArr2Q, covArr4Q, covArr6Q], bins='auto')
+    plt.legend(['Kernel: '+str(kernel1), 'Kernel: '+str(kernel2), 'Kernel: '+str(kernel3)], loc='upper right')
+    plt.savefig('results/last/HistogramPlot.png', dpi=600)
+    plt.title('Coefficient Of Variance Histogram Plot')
+    plt.savefig('results/' + last + '_' + authorsList[0] + '-' + authorsList[1] + '/HistogramPlot.png', dpi=600)
+    plt.close()
+    # #############################
     model.save('results/' + last + '_' + authorsList[0] + '-' + authorsList[1] + '/Model.h5')
