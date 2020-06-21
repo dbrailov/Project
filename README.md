@@ -1,6 +1,7 @@
 ____________________________________________________________________________________________________________________
 DOWNLOADS:
-1. Download the GloVe word embedding and put in the embedding directory - http://nlp.stanford.edu/data/glove.6B.zip
+1. Download the GloVe word embedding - http://nlp.stanford.edu/data/glove.6B.zip
+2. Put the "glove.6B.100d.txt" file in the embedding directory.
 --------------------------------------------------------------------------------------------------------------------
 ACTIVATION:
 1. Run the "MainWindow" file
