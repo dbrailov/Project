@@ -9,5 +9,5 @@ ACTIVATION:
 3. Define your desired CNN training configuration.
 4. Press the Train button.
 5. Upon complition of the training, press the Results button
-6. Open the training results.
+6. Open your desired training results.
 ____________________________________________________________________________________________________________________
