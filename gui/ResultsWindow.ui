@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>412</width>
+    <height>391</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>412</width>
+    <height>391</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>412</width>
+    <height>391</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QSplitter" name="splitter">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>10</y>
+      <width>331</width>
+      <height>351</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <widget class="QLabel" name="label_reports">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; text-decoration: underline; color:#ff0000;&quot;&gt;Reports&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_kernel3">
+     <property name="text">
+      <string>Kernel 3 Weights</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_kernel4">
+     <property name="text">
+      <string>Kernel 4 Weights</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_kernel5">
+     <property name="text">
+      <string>Kernel 5 Weights</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_accuracyPlot">
+     <property name="text">
+      <string>Accuracy Plot </string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_lossPlot">
+     <property name="text">
+      <string>Loss Plot</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_variationCoefficientPlot">
+     <property name="text">
+      <string>Variation Coefficient Plot</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_conclusions">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; text-decoration: underline; color:#ff0000;&quot;&gt;Conclusions&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_optimalKernelGrid">
+     <property name="text">
+      <string>Optimal Kernel Grid</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>gridLayoutWidget_2</zorder>
+   <zorder>gridLayoutWidget</zorder>
+   <zorder>pushButton_accuracyPlot</zorder>
+   <zorder>label_conclusions</zorder>
+   <zorder>pushButton_kernel4</zorder>
+   <zorder>pushButton_variationCoefficientPlot</zorder>
+   <zorder>pushButton_optimalKernelGrid</zorder>
+   <zorder>label_reports</zorder>
+   <zorder>pushButton_kernel5</zorder>
+   <zorder>pushButton_kernel3</zorder>
+   <zorder>pushButton_lossPlot</zorder>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>412</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
